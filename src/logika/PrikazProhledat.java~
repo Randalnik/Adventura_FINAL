@@ -1,0 +1,90 @@
+/* Soubor je ulozen v kodovani UTF-8.
+ * Kontrola kódování: Příliš žluťoučký kůň úpěl ďábelské ódy. */
+package logika;
+
+import java.util.Map;
+import java.util.HashMap;
+/*******************************************************************************
+ * Instance třídy PrikazSeber představují ...
+ * @author    Michal Mach
+ * @version   ZS 2015/2016
+ */
+public class PrikazProhledat implements IPrikaz
+{
+    //== Datové atributy (statické i instancí)======================================
+    private static final String NAZEV = "prohledat";
+    private HerniPlan plan;
+    private Batoh batoh;
+    private Skore skore;
+    private Map<String, Vec> prohledavaneVeci;
+    //== Konstruktory a tovární metody =============================================
+
+    /***************************************************************************
+     *  Konstruktor ....
+     */
+    public PrikazProhledat(HerniPlan plan, Batoh batoh, Skore skore, Map<String, Vec> prohledavaneVeci)
+    {
+        this.plan = plan;
+        this.batoh = batoh; 
+        this.skore = skore;
+        this.prohledavaneVeci = prohledavaneVeci;
+    }
+
+    //== Nesoukromé metody (instancí i třídy) ======================================
+
+    /**
+     *  Provádí příkaz "prohledat". 
+     *  
+     *  Věc musí být prohledatelná, aby k tomu mohlo dojít.
+     *  Každá věc má v sobě jiný počet věcí --> switch
+     *  pak se do batohu přidají věci z mapy - prohledavaneVeci (pro danou prohledávanou věc jiné)
+     *  Většina věcí se nedá prohledat.
+     *  Může se prohledat pouze věc.
+     *  
+     *  @param parametry - jako parametr obsahuje věc, která se má použít.
+     *  @return zpráva, kterou vypíše hra hráči
+     */ 
+
+    public String proved(String... parametry){
+        String vracenyText = null;        
+        Prostor aktualni = plan.getAktualniProstor();  
+        String nazevVeciKProhledani = null;
+        Vec vecKPRohledani = null;
+
+        if (parametry.length == 0){        
+            vracenyText =  "Co mám prohledat?";
+        }
+        if (parametry.length == 1) {     
+            nazevVeciKProhledani = parametry[0];
+            vecKPRohledani = aktualni.ziskejVec(nazevVeciKProhledani);
+            if (vecKPRohledani instanceof Vec) {
+
+                if (vecKPRohledani.jeProhledatelna()) {
+                    batoh.vlozVecDoBatohu(vecKPRohledani.vecZiskanaProhledanim());
+                    vracenyText =  "Prohledal jsi věc |"+ nazevVeciKProhledani +"| a našel si v ní předmět |"+ vecKPRohledani.vecZiskanaProhledanim().getNazev() +"|, který byl přidán do batohu.";    
+                } else {
+                    vracenyText =  "Tato věc se nedá prohledat!";                        
+                }
+
+            } else {
+                vracenyText = "Můžeš prohledat pouze věc!";
+            }
+        }
+
+        if (parametry.length > 1) { 
+            vracenyText =  "Nemusíš zadávat tolik parametrů.";
+        }                                                                         
+        return vracenyText;
+    }
+
+    /**
+     *  Metoda vrací název příkazu (slovo které používá hráč pro jeho vyvolání)
+     *  
+     *  @return nazev prikazu
+     */
+    public String getNazev(){
+        return NAZEV;
+    }
+    //== Soukromé metody (instancí i třídy) ========================================
+
+}
